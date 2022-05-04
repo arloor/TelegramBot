@@ -99,14 +99,14 @@ func NewFormatUpdate(update *tgbotapi.Update) FormatUpdate {
 			User:           update.ChatMember.NewChatMember.User,
 			Chat:           &update.ChatMember.Chat,
 			Text:           getText(update),
-			NewChatMembers: getNewChatMembers(update),
+			NewChatMembers: nil,
 		}
 	} else { // 非成员更新
 		return FormatUpdate{
 			User:           update.SentFrom(),
 			Chat:           update.FromChat(),
 			Text:           getText(update),
-			NewChatMembers: nil,
+			NewChatMembers: getNewChatMembers(update),
 		}
 	}
 }
