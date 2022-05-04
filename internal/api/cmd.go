@@ -99,6 +99,34 @@ func (this API) SendWelcome(chatId int64, userId int64, userAlias string) error 
 	return nil
 }
 
+func (this API) SendMessage(userName string, text string) error {
+	message := make(map[string]string, 3)
+	message["chat_id"] = userName
+	message["text"] = text
+	message["parse_mode"] = "Markdown"
+	body, err := json.Marshal(message)
+	if err != nil {
+		return err
+	}
+	log.Println(string(body))
+	res, err := this.HttpClient.Post(SendMessage, "application/json; charset=utf-8", bytes.NewBuffer(body))
+	if err != nil {
+		return Error{"发送信息失败"}
+	}
+	all, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		log.Println("read content err")
+		return err
+	}
+	response := TgBot.APIResponse{}
+	err = json.Unmarshal(all, &response)
+	if err != nil || !response.Ok {
+		log.Println("解析响应失败", err, string(all))
+		return err
+	}
+	return nil
+}
+
 func (this API) RestricMember(chatId int64, userId int64, permissions ChatPermissions) error {
 	request := NewRestricMemberRequest(chatId, userId, permissions)
 	body, err := json.Marshal(request)
