@@ -95,7 +95,7 @@ func NewFormatUpdate(update *tgbotapi.Update) FormatUpdate {
 }
 func (this FormatUpdate) Info() {
 	if this.User != nil && this.Chat != nil && this.Text != "" {
-		log.Println(this.User.UserName, "在", this.Chat.Title, "说：", this.Text)
+		log.Println(this.User.UserName, "在{", this.Chat.Title, "}说：", this.Text)
 	}
 }
 
