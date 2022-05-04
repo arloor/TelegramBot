@@ -12,7 +12,12 @@ import (
 var bot api.API
 
 func init() {
-	log.SetOutput(os.Stdout)
+	file := "/var/log/bot.log"
+	logFile, err := os.OpenFile(file, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0766)
+	if err != nil {
+		panic(err)
+	}
+	log.SetOutput(logFile)
 	log.SetFlags(log.Lshortfile | log.Flags())
 	bot = api.NewDefaultAPI()
 }
