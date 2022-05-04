@@ -94,11 +94,20 @@ func newWelcomeInlineKeyboard(chatId int64, userId int64) [][]tgbotapi.InlineKey
 }
 
 func NewFormatUpdate(update *tgbotapi.Update) FormatUpdate {
-	return FormatUpdate{
-		User:           update.SentFrom(),
-		Chat:           update.FromChat(),
-		Text:           getText(update),
-		NewChatMembers: getNewChatMembers(update),
+	if update.ChatMember != nil { // 是成员更新
+		return FormatUpdate{
+			User:           update.ChatMember.NewChatMember.User,
+			Chat:           &update.ChatMember.Chat,
+			Text:           getText(update),
+			NewChatMembers: getNewChatMembers(update),
+		}
+	} else { // 非成员更新
+		return FormatUpdate{
+			User:           update.SentFrom(),
+			Chat:           update.FromChat(),
+			Text:           getText(update),
+			NewChatMembers: getNewChatMembers(update),
+		}
 	}
 }
 func (this FormatUpdate) Info() {
@@ -121,9 +130,16 @@ func getText(update *tgbotapi.Update) string {
 }
 
 func getNewChatMembers(update *tgbotapi.Update) []tgbotapi.User {
-	if update.Message != nil {
+	if update.Message != nil && update.Message.NewChatMembers != nil {
 		return update.Message.NewChatMembers
-	} else {
-		return nil
+	} else if update.ChatMember != nil {
+		oldChatMember := update.ChatMember.OldChatMember
+		newChatMember := update.ChatMember.NewChatMember
+		if oldChatMember.Status == "left" && newChatMember.Status != "left" && oldChatMember.User.ID == newChatMember.User.ID {
+			users := make([]tgbotapi.User, 1)
+			users[0] = *newChatMember.User
+			return users
+		}
 	}
+	return nil
 }
