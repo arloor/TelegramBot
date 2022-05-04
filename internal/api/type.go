@@ -99,14 +99,14 @@ func NewFormatUpdate(update *tgbotapi.Update) FormatUpdate {
 			User:           update.ChatMember.NewChatMember.User,
 			Chat:           &update.ChatMember.Chat,
 			Text:           getText(update),
-			NewChatMembers: nil,
+			NewChatMembers: getNewChatMembers(update),
 		}
 	} else { // 非成员更新
 		return FormatUpdate{
 			User:           update.SentFrom(),
 			Chat:           update.FromChat(),
 			Text:           getText(update),
-			NewChatMembers: getNewChatMembers(update),
+			NewChatMembers: nil,
 		}
 	}
 }
@@ -133,9 +133,11 @@ func getNewChatMembers(update *tgbotapi.Update) []tgbotapi.User {
 	if update.Message != nil && update.Message.NewChatMembers != nil {
 		return update.Message.NewChatMembers
 	} else if update.ChatMember != nil {
-		oldChatMember := update.ChatMember.OldChatMember
 		newChatMember := update.ChatMember.NewChatMember
-		if oldChatMember.Status == "left" && newChatMember.Status != "left" && oldChatMember.User.ID == newChatMember.User.ID {
+		oldChatMember := update.ChatMember.OldChatMember
+		isNew2Chat := (oldChatMember.Status == "left" || oldChatMember.Status == "kicked") && (newChatMember.Status != "left" && newChatMember.Status != "kicked")
+		log.Printf("%s的状态从[isMember:%t,%s]变为[isMember:%t,%s]，是否新加群[%t]", newChatMember.User.UserName, oldChatMember.IsMember, oldChatMember.Status, newChatMember.IsMember, newChatMember.Status, isNew2Chat)
+		if isNew2Chat {
 			users := make([]tgbotapi.User, 1)
 			users[0] = *newChatMember.User
 			return users
