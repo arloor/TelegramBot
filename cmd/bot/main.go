@@ -61,9 +61,10 @@ func handleCallBackData(update tgbotapi.Update) {
 			chatId, err := strconv.ParseInt(split[1], 10, 64)
 			if err == nil && update.SentFrom().ID == userId {
 				err := bot.RestricMember(chatId, userId, api.ChatPermissions{
-					true, true, true, true, true, true, true, true,
+					true, true, false, true, true, false, true, false,
 				})
 				if err == nil {
+					log.Println("解禁用户", userId)
 					bot.AnswerCallbackQuery(update.CallbackQuery.ID, "您可以发言了", false)
 					return
 				}
