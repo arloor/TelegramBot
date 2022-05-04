@@ -4,6 +4,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"log"
 	"strconv"
+	"strings"
 )
 
 type FormatUpdate struct {
@@ -60,11 +61,18 @@ type ChatPermissions struct {
 	CanPinMessages        bool `json:"can_pin_messages"`
 }
 
-func NewWelcomeMessage(chatId int64, userId int64) SendMessageRequest {
+func NewWelcomeMessage(chatId int64, userId int64, userAlias string) SendMessageRequest {
+	userAlias = strings.ReplaceAll(userAlias, "*", "")
+	userAlias = strings.ReplaceAll(userAlias, "_", "")
+	userAlias = strings.ReplaceAll(userAlias, "[", "")
+	userAlias = strings.ReplaceAll(userAlias, "]", "")
+	userAlias = strings.ReplaceAll(userAlias, "(", "")
+	userAlias = strings.ReplaceAll(userAlias, ")", "")
+	userAlias = strings.ReplaceAll(userAlias, "`", "")
 	return SendMessageRequest{
-		ParseMode: "MarkdownV2",
+		ParseMode: "Markdown",
 		ChatId:    chatId,
-		Text:      "欢迎[新朋友](tg://user?id=" + strconv.FormatInt(userId, 10) + ")来到本群组！\n请点击*我不是机器人*获取发言权限",
+		Text:      "欢迎[" + userAlias + "](tg://user?id=" + strconv.FormatInt(userId, 10) + ")来到本群组！\n请点击*我不是机器人*获取发言权限",
 		ReplyMarkup: tgbotapi.InlineKeyboardMarkup{
 			InlineKeyboard: newWelcomeInlineKeyboard(chatId, userId),
 		},

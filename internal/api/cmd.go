@@ -74,26 +74,26 @@ func (receiver API) GetUpdateWithOffset(offset int) ([]TgBot.Update, error) {
 	return nil, Error{"fail"}
 }
 
-func (this API) SendWelcome(chatId int64, userId int64) error {
-	message := NewWelcomeMessage(chatId, userId)
+func (this API) SendWelcome(chatId int64, userId int64, userAlias string) error {
+	message := NewWelcomeMessage(chatId, userId, userAlias)
 	body, err := json.Marshal(message)
 	if err != nil {
 		return err
 	}
 	//log.Println(string(body))
 	res, err := this.HttpClient.Post(SendMessage, "application/json; charset=utf-8", bytes.NewBuffer(body))
-	if err != nil || res.StatusCode != 200 {
+	if err != nil {
 		return Error{"发送欢迎信息失败"}
 	}
 	all, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		log.Println("read content err", err)
+		log.Println("read content err")
 		return err
 	}
 	response := TgBot.APIResponse{}
 	err = json.Unmarshal(all, &response)
 	if err != nil || !response.Ok {
-		log.Println("解析响应失败", err)
+		log.Println("解析响应失败", err, string(all))
 		return err
 	}
 	return nil
@@ -119,6 +119,7 @@ func (this API) RestricMember(chatId int64, userId int64, permissions ChatPermis
 		return err
 	}
 	if !response.Ok {
+		log.Println("调整用户权限失败", string(all))
 		return Error{"error restrict！"}
 	}
 	return nil
@@ -144,6 +145,7 @@ func (this API) AnswerCallbackQuery(callbackId string, text string, showAlert bo
 		return err
 	}
 	if !response.Ok {
+		log.Println("AnswerCallbackQuery error", string(all))
 		return Error{"error AnswerCallbackQuery！"}
 	}
 	return nil
