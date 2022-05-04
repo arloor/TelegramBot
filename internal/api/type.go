@@ -106,7 +106,7 @@ func NewFormatUpdate(update *tgbotapi.Update) FormatUpdate {
 			User:           update.SentFrom(),
 			Chat:           update.FromChat(),
 			Text:           getText(update),
-			NewChatMembers: getNewChatMembers(update),
+			NewChatMembers: nil,
 		}
 	}
 }
