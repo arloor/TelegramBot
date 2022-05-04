@@ -3,6 +3,7 @@ package main
 import (
 	"TelegramBot/internal/api"
 	"github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"io"
 	"log"
 	"os"
 	"strconv"
@@ -17,7 +18,8 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	log.SetOutput(logFile)
+	mw := io.MultiWriter(os.Stdout, logFile)
+	log.SetOutput(mw)
 	log.SetFlags(log.Lshortfile | log.Flags())
 	bot = api.NewDefaultAPI()
 }
