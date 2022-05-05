@@ -132,13 +132,16 @@ func getText(update *tgbotapi.Update) string {
 func getNewChatMembers(update *tgbotapi.Update) []tgbotapi.User {
 	if update.Message != nil && update.Message.NewChatMembers != nil {
 		return update.Message.NewChatMembers
-	} else if update.ChatMember != nil {
+	} else if update.ChatMember != nil && update.ChatMember.Chat.Type == "supergroup" {
+		chatTitle := update.ChatMember.Chat.Title
 		newChatMember := update.ChatMember.NewChatMember
 		oldChatMember := update.ChatMember.OldChatMember
+		userAlias := BuildUserAlias(*newChatMember.User)
+		// 处理非restricted
 		isNew2Chat := (oldChatMember.Status == "left" || oldChatMember.Status == "kicked") && (newChatMember.Status != "left" && newChatMember.Status != "kicked")
-		// 只有restricted才有IsMember字段
+		// 处理restricted
 		isNew2Chat = isNew2Chat || (!oldChatMember.IsMember && newChatMember.IsMember && oldChatMember.Status == "restricted" && newChatMember.Status == "restricted")
-		log.Printf("%s的状态从[isMember:%t,%s]变为[isMember:%t,%s]，是否新加群[%t]", newChatMember.User.UserName, oldChatMember.IsMember, oldChatMember.Status, newChatMember.IsMember, newChatMember.Status, isNew2Chat)
+		log.Printf("群组[%s]的%s[%s]从[%s,isMember:%t]变为[%s,isMember:%t]，是否新加群[%t]", chatTitle, userAlias, newChatMember.User.UserName, oldChatMember.Status, oldChatMember.IsMember, newChatMember.Status, newChatMember.IsMember, isNew2Chat)
 		if isNew2Chat {
 			users := make([]tgbotapi.User, 1)
 			users[0] = *newChatMember.User

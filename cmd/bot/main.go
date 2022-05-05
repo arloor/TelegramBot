@@ -39,15 +39,9 @@ func main() {
 					chatId := formatUpdate.Chat.ID
 					for _, member := range formatUpdate.NewChatMembers {
 						userId := member.ID
-						userAlias := member.FirstName
-						if member.LastName != "" {
-							if userAlias != "" {
-								userAlias += " "
-							}
-							userAlias += member.LastName
-						}
+						userAlias := api.BuildUserAlias(member)
 						if bot.SendWelcome(chatId, userId, userAlias) == nil {
-							log.Println("封禁用户", member.UserName)
+							log.Println("封禁用户", userId, member.UserName, userAlias)
 							bot.RestricMember(chatId, userId, api.ChatPermissions{
 								false, false, false, false, false, false, false, false,
 							})
