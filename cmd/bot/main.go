@@ -72,12 +72,12 @@ func handleCallBackData(update tgbotapi.Update) {
 				})
 				if err == nil {
 					log.Println("解禁用户", userId)
-					bot.AnswerCallbackQuery(update.CallbackQuery.ID, "您可以发言了", false)
+					bot.AnswerCallbackQuery(update.CallbackQuery.ID, "您获得了发言权限😄", false)
 					return
 				}
 			}
 		}
-		bot.AnswerCallbackQuery(update.CallbackQuery.ID, "请不要瞎点", true)
+		bot.AnswerCallbackQuery(update.CallbackQuery.ID, "该验证并不针对你，或者Bot的权限不足，请不要瞎搞🤢", false)
 	}
 
 }
