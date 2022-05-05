@@ -136,6 +136,7 @@ func getNewChatMembers(update *tgbotapi.Update) []tgbotapi.User {
 		newChatMember := update.ChatMember.NewChatMember
 		oldChatMember := update.ChatMember.OldChatMember
 		isNew2Chat := (oldChatMember.Status == "left" || oldChatMember.Status == "kicked") && (newChatMember.Status != "left" && newChatMember.Status != "kicked")
+		// 只有restricted才有IsMember字段
 		isNew2Chat = isNew2Chat || (!oldChatMember.IsMember && newChatMember.IsMember && oldChatMember.Status == "restricted" && newChatMember.Status == "restricted")
 		log.Printf("%s的状态从[isMember:%t,%s]变为[isMember:%t,%s]，是否新加群[%t]", newChatMember.User.UserName, oldChatMember.IsMember, oldChatMember.Status, newChatMember.IsMember, newChatMember.Status, isNew2Chat)
 		if isNew2Chat {
