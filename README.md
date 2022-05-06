@@ -34,5 +34,5 @@ EOF
 service bot stop
 systemctl enable bot
 service bot start
-botlog
+tail -f /var/log/bot.log
 ```
