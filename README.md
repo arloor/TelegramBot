@@ -1,5 +1,16 @@
 ## 电报机器人
 
+## 安装go1.18
+
+```shell
+wget https://go.dev/dl/go1.18.1.linux-amd64.tar.gz -O go1.18.1.linux-amd64.tar.gz
+tar -zxvf go1.18.1.linux-amd64.tar.gz -C /usr/local/
+ln -fs /usr/local/go/bin/go /usr/local/bin/go
+go version
+```
+
+## 安装
+
 ```shell
 bot_token=你的bot的token
 
