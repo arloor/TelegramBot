@@ -1,12 +1,9 @@
 ## 电报机器人
 
-## 安装go1.18
+## 设置bot_token到环境变量
 
 ```shell
-wget https://go.dev/dl/go1.18.1.linux-amd64.tar.gz -O go1.18.1.linux-amd64.tar.gz
-tar -zxvf go1.18.1.linux-amd64.tar.gz -C /usr/local/
-ln -fs /usr/local/go/bin/go /usr/local/bin/go
-go version
+export bot_token=xxxxxxxxxxxxxxxxxxxxxxx
 ```
 
 ## 安装
@@ -46,4 +43,21 @@ service bot stop
 systemctl enable bot
 service bot start
 tail -f /var/log/bot.log
+```
+
+## 从源码编译
+
+1. 请安装go1.18
+
+```shell
+wget https://go.dev/dl/go1.18.1.linux-amd64.tar.gz -O go1.18.1.linux-amd64.tar.gz
+tar -zxvf go1.18.1.linux-amd64.tar.gz -C /usr/local/
+ln -fs /usr/local/go/bin/go /usr/local/bin/go
+go version
+```
+
+2. 编译
+
+```shell
+go install TelegramBot/cmd/bot
 ```
