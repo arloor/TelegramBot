@@ -112,7 +112,14 @@ func NewFormatUpdate(update *tgbotapi.Update) FormatUpdate {
 }
 func (this FormatUpdate) Info() {
 	if this.User != nil && this.Chat != nil && this.Text != "" {
-		log.Println(this.User.UserName, "在{", this.Chat.Title, "}说：", this.Text)
+		userAlias := BuildUserAlias(*this.User)
+		var chatTitle string
+		if this.Chat.Title != "" {
+			chatTitle = this.Chat.Title
+		} else {
+			chatTitle = BuildUserAliasFromName(this.Chat.FirstName, this.Chat.LastName)
+		}
+		log.Printf("%s[%s]在【%s】说：%s\n", userAlias, this.User.UserName, chatTitle, this.Text)
 	}
 }
 

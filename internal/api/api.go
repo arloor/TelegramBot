@@ -29,3 +29,14 @@ func BuildUserAlias(user tgbotapi.User) string {
 	}
 	return userAlias
 }
+
+func BuildUserAliasFromName(firstName, lastName string) string {
+	userAlias := firstName
+	if lastName != "" {
+		if userAlias != "" {
+			userAlias += " "
+		}
+		userAlias += lastName
+	}
+	return userAlias
+}
