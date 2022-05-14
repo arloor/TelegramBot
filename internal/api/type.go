@@ -148,8 +148,8 @@ func getNewChatMembers(update *tgbotapi.Update) []tgbotapi.User {
 		isNew2Chat := (oldChatMember.Status == "left" || oldChatMember.Status == "kicked") && (newChatMember.Status != "left" && newChatMember.Status != "kicked")
 		// 处理restricted
 		isNew2Chat = isNew2Chat || (!oldChatMember.IsMember && newChatMember.IsMember && oldChatMember.Status == "restricted" && newChatMember.Status == "restricted")
-		log.Printf("群组[%s]的%s[%s]从[%s,isMember:%t]变为[%s,isMember:%t]，是否新加群[%t]", chatTitle, userAlias, newChatMember.User.UserName, oldChatMember.Status, oldChatMember.IsMember, newChatMember.Status, newChatMember.IsMember, isNew2Chat)
 		if isNew2Chat {
+			log.Printf("群组[%s]的%s[%s]从[%s,isMember:%t]变为[%s,isMember:%t]，是否新加群[%t]", chatTitle, userAlias, newChatMember.User.UserName, oldChatMember.Status, oldChatMember.IsMember, newChatMember.Status, newChatMember.IsMember, isNew2Chat)
 			users := make([]tgbotapi.User, 1)
 			users[0] = *newChatMember.User
 			return users
