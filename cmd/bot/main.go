@@ -31,6 +31,7 @@ func main() {
 		if err == nil {
 			for _, update := range updates {
 				//解禁
+				deleteChannelPost(update)
 				handleCallBackData(update)
 				formatUpdate := api.NewFormatUpdate(&update)
 				formatUpdate.Info()
@@ -51,6 +52,14 @@ func main() {
 			}
 		}
 	}
+}
+
+func deleteChannelPost(update tgbotapi.Update) {
+	if update.Message != nil && update.Message.SenderChat != nil && update.Message.SenderChat.Type == "channel" {
+		log.Println("检测到有人用channel身份发送消息，自动删除")
+		bot.DeleteMessage(strconv.FormatInt(update.FromChat().ID, 10), update.Message.MessageID)
+	}
+
 }
 
 func handleCallBackData(update tgbotapi.Update) {

@@ -20,6 +20,7 @@ var urlBase = "https://api.telegram.org/bot" + botToken + "/"
 var GetMe string = urlBase + "getMe"
 var GetUpdates string = urlBase + "getUpdates"
 var SendMessage string = urlBase + "sendMessage"
+var DeleteMessage string = urlBase + "deleteMessage"
 var RestrictChatMember string = urlBase + "restrictChatMember"
 var AnswerCallbackQuery string = urlBase + "answerCallbackQuery"
 
@@ -84,6 +85,32 @@ func (this API) SendWelcome(chatId int64, userId int64, userAlias string) error 
 	res, err := this.HttpClient.Post(SendMessage, "application/json; charset=utf-8", bytes.NewBuffer(body))
 	if err != nil {
 		return Error{"发送欢迎信息失败"}
+	}
+	all, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		log.Println("read content err")
+		return err
+	}
+	response := TgBot.APIResponse{}
+	err = json.Unmarshal(all, &response)
+	if err != nil || !response.Ok {
+		log.Println("解析响应失败", err, string(all))
+		return err
+	}
+	return nil
+}
+
+func (this API) DeleteMessage(chatId string, messageId int) error {
+	message := make(map[string]interface{}, 3)
+	message["chat_id"] = chatId
+	message["message_id"] = messageId
+	body, err := json.Marshal(message)
+	if err != nil {
+		return err
+	}
+	res, err := this.HttpClient.Post(DeleteMessage, "application/json; charset=utf-8", bytes.NewBuffer(body))
+	if err != nil {
+		return Error{"删除信息失败"}
 	}
 	all, err := ioutil.ReadAll(res.Body)
 	if err != nil {
