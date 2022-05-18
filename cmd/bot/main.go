@@ -42,7 +42,7 @@ func main() {
 						userId := member.ID
 						userAlias := api.BuildUserAlias(member)
 						if bot.SendWelcome(chatId, userId, userAlias) == nil {
-							log.Println("封禁用户", userId, member.UserName, userAlias)
+							log.Printf("封禁用户 %d [%s][%s]", userId, member.UserName, userAlias)
 							bot.RestricMember(chatId, userId, api.ChatPermissions{
 								false, false, false, false, false, false, false, false,
 							})
