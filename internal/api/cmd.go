@@ -3,6 +3,7 @@ package api
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	TgBot "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"io/ioutil"
 	"log"
@@ -121,7 +122,7 @@ func (this API) DeleteMessage(chatId string, messageId int) error {
 	err = json.Unmarshal(all, &response)
 	if err != nil || !response.Ok {
 		log.Println("解析响应失败", err, string(all))
-		return err
+		return errors.New("删除消息失败")
 	}
 	return nil
 }
@@ -135,7 +136,6 @@ func (this API) SendMessage(userName string, text string) error {
 	if err != nil {
 		return err
 	}
-	log.Println(string(body))
 	res, err := this.HttpClient.Post(SendMessage, "application/json; charset=utf-8", bytes.NewBuffer(body))
 	if err != nil {
 		return Error{"发送信息失败"}
