@@ -3,6 +3,7 @@ package main
 import (
 	"TelegramBot/internal/api"
 	"github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"gopkg.in/natefinch/lumberjack.v2"
 	"io"
 	"log"
 	"os"
@@ -14,11 +15,14 @@ var bot api.API
 
 func init() {
 	file := "/var/log/bot.log"
-	logFile, err := os.OpenFile(file, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0766)
-	if err != nil {
-		panic(err)
+	rollingFile := &lumberjack.Logger{
+		Filename:   file,
+		MaxSize:    50,
+		MaxAge:     14,
+		MaxBackups: 10,
+		Compress:   false,
 	}
-	mw := io.MultiWriter(os.Stdout, logFile)
+	mw := io.MultiWriter(os.Stdout, rollingFile)
 	log.SetOutput(mw)
 	log.SetFlags(log.Lshortfile | log.Flags())
 	bot = api.NewDefaultAPI()
