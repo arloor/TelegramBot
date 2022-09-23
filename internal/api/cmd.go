@@ -76,29 +76,36 @@ func (receiver API) GetUpdateWithOffset(offset int) ([]TgBot.Update, error) {
 	return nil, Error{"fail"}
 }
 
-func (this API) SendWelcome(chatId int64, userId int64, userAlias string) error {
+func (this API) SendWelcome(chatId int64, userId int64, userAlias string) (*ChatIdMsgId, error) {
 	message := NewWelcomeMessage(chatId, userId, userAlias)
 	body, err := json.Marshal(message)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	//log.Println(string(body))
 	res, err := this.HttpClient.Post(SendMessage, "application/json; charset=utf-8", bytes.NewBuffer(body))
 	if err != nil {
-		return Error{"发送欢迎信息失败"}
+		return nil, Error{"发送欢迎信息失败"}
 	}
 	all, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		log.Println("read content err")
-		return err
+		return nil, err
 	}
 	response := TgBot.APIResponse{}
 	err = json.Unmarshal(all, &response)
 	if err != nil || !response.Ok {
 		log.Println("解析响应失败", err, string(all))
-		return err
+		return nil, err
+	} else {
+		msg := TgBot.Message{}
+		json.Unmarshal(response.Result, &msg)
+		return &ChatIdMsgId{
+			msg.Chat.ID,
+			msg.MessageID,
+			msg.Date,
+		}, nil
 	}
-	return nil
 }
 
 func (this API) DeleteMessage(chatId string, messageId int) error {

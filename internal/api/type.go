@@ -27,6 +27,12 @@ func NewAnswerCallbackQueryRequest(callbackId string, text string, showAlert boo
 
 }
 
+type ChatIdMsgId struct {
+	ChatId           int64
+	MsgId            int
+	SendTimeInSecond int
+}
+
 type SendMessageRequest struct {
 	ChatId      int64                         `json:"chat_id"`
 	Text        string                        `json:"text"`

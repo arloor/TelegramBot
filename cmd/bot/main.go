@@ -9,6 +9,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 var bot api.API
@@ -29,6 +30,23 @@ func init() {
 }
 
 func main() {
+	toDeleteMsgs := make(chan api.ChatIdMsgId, 100)
+	go func() {
+		for {
+			toDeleteMsg := <-toDeleteMsgs
+			nowSecond := time.Now().Unix()
+			var secondsToSleep int64 = 120 - nowSecond + int64(toDeleteMsg.SendTimeInSecond)
+			if secondsToSleep >= 0 {
+				time.Sleep(time.Duration(secondsToSleep) * time.Second)
+			}
+			err := bot.DeleteMessage(strconv.FormatInt(toDeleteMsg.ChatId, 10), toDeleteMsg.MsgId)
+			if err != nil {
+				log.Println("error clear msg", err)
+
+			}
+
+		}
+	}()
 	log.Println(bot.GetMe())
 	for {
 		updates, err := bot.GetUpdates()
@@ -45,11 +63,15 @@ func main() {
 					for _, member := range formatUpdate.NewChatMembers {
 						userId := member.ID
 						userAlias := api.BuildUserAlias(member)
-						if bot.SendWelcome(chatId, userId, userAlias) == nil {
+						chatIdMsgId, err := bot.SendWelcome(chatId, userId, userAlias)
+						if err == nil {
 							log.Printf("封禁用户 %d [%s][%s]", userId, member.UserName, userAlias)
 							bot.RestricMember(chatId, userId, api.ChatPermissions{
 								false, false, false, false, false, false, false, false,
 							})
+							if chatIdMsgId != nil {
+								toDeleteMsgs <- *chatIdMsgId
+							}
 						}
 					}
 				}
