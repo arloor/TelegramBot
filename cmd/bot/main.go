@@ -94,7 +94,7 @@ func deleteChannelPost(update tgbotapi.Update) {
 		log.Println("检测到有人用channel身份发送消息，自动删除")
 		if err := bot.DeleteMessage(strconv.FormatInt(update.FromChat().ID, 10), update.Message.MessageID); err == nil {
 			chatIdMsgId, err := bot.SendMessage(strconv.FormatInt(update.FromChat().ID, 10), "本群组不允许以*频道身份*发送消息！已删除此类消息！")
-			if err != nil {
+			if err == nil && chatIdMsgId != nil {
 				toDeleteMsg <- *chatIdMsgId
 			}
 		}
