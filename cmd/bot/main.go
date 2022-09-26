@@ -47,7 +47,11 @@ func main() {
 
 		}
 	}()
-	log.Println(bot.GetMe())
+	botInfo, err := bot.GetMe()
+	if err != nil {
+		log.Fatalln("登陆机器人失败，请检查网络和token", err)
+	}
+	log.Println("机器人登陆成功：", botInfo)
 	for {
 		updates, err := bot.GetUpdates()
 		if err == nil {

@@ -78,7 +78,7 @@ func NewWelcomeMessage(chatId int64, userId int64, userAlias string) SendMessage
 	return SendMessageRequest{
 		ParseMode: "Markdown",
 		ChatId:    chatId,
-		Text:      "欢迎[" + userAlias + "](tg://user?id=" + strconv.FormatInt(userId, 10) + ")来到本群组！\n请点击*我不是机器人*获取发言权限",
+		Text:      "欢迎[" + userAlias + "](tg://user?id=" + strconv.FormatInt(userId, 10) + ")来到本群组！\n您有120秒的时间点击*我不是机器人*以获取发言权限\n超期将被限制发言，*退群后重新加群*可再次看到该验证信息",
 		ReplyMarkup: tgbotapi.InlineKeyboardMarkup{
 			InlineKeyboard: newWelcomeInlineKeyboard(chatId, userId),
 		},
