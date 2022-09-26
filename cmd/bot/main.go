@@ -29,27 +29,32 @@ func init() {
 	bot = api.NewDefaultAPI()
 }
 
-func main() {
-	toDeleteMsgs := make(chan api.ChatIdMsgId, 100)
-	go func() {
-		for {
-			toDeleteMsg := <-toDeleteMsgs
-			nowSecond := time.Now().Unix()
-			var secondsToSleep int64 = 120 - nowSecond + int64(toDeleteMsg.SendTimeInSecond)
-			if secondsToSleep >= 0 {
-				time.Sleep(time.Duration(secondsToSleep) * time.Second)
-			}
-			err := bot.DeleteMessage(strconv.FormatInt(toDeleteMsg.ChatId, 10), toDeleteMsg.MsgId)
-			if err != nil {
-				log.Println("error clear msg", err)
+var toDeleteWelcome = make(chan api.ChatIdMsgId, 100)
+var toDeleteMsg = make(chan api.ChatIdMsgId, 100)
 
-			}
+func doDelete(latency int64, toDeleteMsgs chan api.ChatIdMsgId) {
+	for {
+		toDeleteMsg := <-toDeleteMsgs
+		nowSecond := time.Now().Unix()
+		var secondsToSleep int64 = latency - nowSecond + int64(toDeleteMsg.SendTimeInSecond)
+		if secondsToSleep >= 0 {
+			time.Sleep(time.Duration(secondsToSleep) * time.Second)
+		}
+		err := bot.DeleteMessage(strconv.FormatInt(toDeleteMsg.ChatId, 10), toDeleteMsg.MsgId)
+		if err != nil {
+			log.Println("error clear msg", err)
 
 		}
-	}()
+
+	}
+}
+
+func main() {
+	go doDelete(120, toDeleteWelcome)
+	go doDelete(3, toDeleteMsg)
 	botInfo, err := bot.GetMe()
 	if err != nil {
-		log.Fatalln("登陆机器人失败，请检查网络和token", err)
+		log.Fatalln("登陆机器人失败，请检查网络和token")
 	}
 	log.Println("机器人登陆成功：", botInfo)
 	for {
@@ -74,7 +79,7 @@ func main() {
 								false, false, false, false, false, false, false, false,
 							})
 							if chatIdMsgId != nil {
-								toDeleteMsgs <- *chatIdMsgId
+								toDeleteWelcome <- *chatIdMsgId
 							}
 						}
 					}
@@ -88,7 +93,10 @@ func deleteChannelPost(update tgbotapi.Update) {
 	if update.Message != nil && update.Message.SenderChat != nil && update.Message.SenderChat.Type == "channel" {
 		log.Println("检测到有人用channel身份发送消息，自动删除")
 		if err := bot.DeleteMessage(strconv.FormatInt(update.FromChat().ID, 10), update.Message.MessageID); err == nil {
-			bot.SendMessage(strconv.FormatInt(update.FromChat().ID, 10), "本群组不允许以*频道身份*发送消息！已删除此类消息！")
+			chatIdMsgId, err := bot.SendMessage(strconv.FormatInt(update.FromChat().ID, 10), "本群组不允许以*频道身份*发送消息！已删除此类消息！")
+			if err != nil {
+				toDeleteMsg <- *chatIdMsgId
+			}
 		}
 	}
 

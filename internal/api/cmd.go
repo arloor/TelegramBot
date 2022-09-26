@@ -134,31 +134,38 @@ func (this API) DeleteMessage(chatId string, messageId int) error {
 	return nil
 }
 
-func (this API) SendMessage(userName string, text string) error {
+func (this API) SendMessage(userName string, text string) (*ChatIdMsgId, error) {
 	message := make(map[string]string, 3)
 	message["chat_id"] = userName
 	message["text"] = text
 	message["parse_mode"] = "Markdown"
 	body, err := json.Marshal(message)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	res, err := this.HttpClient.Post(SendMessage, "application/json; charset=utf-8", bytes.NewBuffer(body))
 	if err != nil {
-		return Error{"发送信息失败"}
+		return nil, Error{"发送信息失败"}
 	}
 	all, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		log.Println("read content err")
-		return err
+		return nil, err
 	}
 	response := TgBot.APIResponse{}
 	err = json.Unmarshal(all, &response)
 	if err != nil || !response.Ok {
 		log.Println("解析响应失败", err, string(all))
-		return err
+		return nil, err
+	} else {
+		msg := TgBot.Message{}
+		json.Unmarshal(response.Result, &msg)
+		return &ChatIdMsgId{
+			msg.Chat.ID,
+			msg.MessageID,
+			msg.Date,
+		}, nil
 	}
-	return nil
 }
 
 func (this API) RestricMember(chatId int64, userId int64, permissions ChatPermissions) error {
